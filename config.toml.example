@@ -1,0 +1,21 @@
+# remove the section if you are only recording the screen without streaming
+[srt]
+uri = "srt://live-push.bilivideo.com:1937"
+# Bilibili Web interface provides this as "?streamname=...".
+# "?streamname" is FFmpeg specific and we don't support it.
+streamid = "#!::h=live-push.bilivideo.com,r=live-bvc/?streamname=live_xxxxxxxx_yyyyyyyy,key=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz,schedule=srtts,pflag=1"
+
+# uncomment the section to record the stream into a mpegts file
+#[file]
+# %t will be replaced to the UNIX time stamp.
+#path = '%t.ts'
+
+# remove the section if you don't need to stream audio
+[pulse]
+device = 'alsa_output.pci-0000_00_1f.3.analog-stereo.monitor'
+
+# all contents in this section are mandated
+[video]
+width = 1920
+height = 1080
+framerate = 60
