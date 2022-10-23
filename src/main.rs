@@ -166,10 +166,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     ].join(" ! ");
 
     let pipeline_a = config.pulse.map(|x| [
-        &x.gst_source(),
-        "queue",
-        "fdkaacenc",
-        "audio/mpeg,channels=2,rate=48000",
+        x.gst_source(),
+        config.audio.gst_pipeline(),
     ].join(" ! "));
 
     let srt_sink = config.srt

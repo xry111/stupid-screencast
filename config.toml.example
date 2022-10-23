@@ -19,3 +19,10 @@ device = 'alsa_output.pci-0000_00_1f.3.analog-stereo.monitor'
 width = 1920
 height = 1080
 framerate = 60
+
+[audio]
+#sample_rate = 48000   # Hz, this is the default
+#channel = 2           # this is the default
+
+# the default is evaulated by fdk-aac, which can be too large
+bit_rate = 131072

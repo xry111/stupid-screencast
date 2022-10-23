@@ -73,12 +73,38 @@ impl Video {
     }
 }
 
+#[derive(Default, Deserialize)]
+pub struct Audio {
+    channel: Option<usize>,
+    sample_rate: Option<usize>,
+    bit_rate: Option<usize>,
+}
+
+impl Audio {
+    pub fn gst_pipeline(&self) -> String {
+        let channel = self.channel.unwrap_or(2);
+        let sample_rate = self.sample_rate.unwrap_or(48000);
+        let bit_rate = self.bit_rate.map(|x| format!("bitrate={}", x));
+
+        [
+            [Some("fdkaacenc".to_owned()), bit_rate]
+                .into_iter()
+                .flatten()
+                .collect::<Vec<_>>()
+                .join(" "),
+            format!("audio/mpeg,channels={channel},rate={sample_rate}"),
+        ].join(" ! ")
+    }
+}
+
 #[derive(Deserialize)]
 pub struct Config {
     pub srt: Option<Srt>,
     pub file: Option<File>,
     pub pulse: Option<Pulse>,
     pub video: Video,
+    #[serde(default)]
+    pub audio: Audio,
 }
 
 impl Config {
