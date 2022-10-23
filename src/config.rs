@@ -69,7 +69,8 @@ impl Video {
             &format!("video/x-raw,framerate={framerate}/1"),
             "videoscale",
             &format!("video/x-raw,width={width},height={height}"),
-        ].join(" ! ")
+        ]
+        .join(" ! ")
     }
 }
 
@@ -93,7 +94,8 @@ impl Audio {
                 .collect::<Vec<_>>()
                 .join(" "),
             format!("audio/mpeg,channels={channel},rate={sample_rate}"),
-        ].join(" ! ")
+        ]
+        .join(" ! ")
     }
 }
 

@@ -101,23 +101,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
         return (Err("SelectSources returned non-zero code"))?;
     }
 
-    let opt = HashMap::from([
-        ("handle_token", Value::from("stupid_screencast")),
-    ]);
+    let opt = HashMap::from([("handle_token", Value::from("stupid_screencast"))]);
     let request = cast.start(&session, "", &opt).await?;
     check_request_path(&request, &req)?;
 
-    let resp = stream
-        .next()
-        .await
-        .ok_or("no response for Start request")?;
+    let resp = stream.next().await.ok_or("no response for Start request")?;
     let args = resp.args()?;
 
     if args.code() != &0 {
         return (Err("Start returned non-zero code"))?;
     }
 
-    let node_id = &args.results().get("streams")
+    let node_id = &args
+        .results()
+        .get("streams")
         .ok_or("fuck")?
         .downcast_ref::<Array>()
         .ok_or("fuck")?
@@ -139,7 +136,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "do-timestamp=true",
         "keepalive-time=1000",
         "resend-last=true",
-    ].join(" ");
+    ]
+    .join(" ");
 
     let video_convert = [
         "videoconvert",
@@ -147,7 +145,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "dither=GST_VIDEO_DITHER_NONE",
         "matrix-mode=GST_VIDEO_MATRIX_MODE_OUTPUT_ONLY",
         "n-threads=1",
-    ].join(" ");
+    ]
+    .join(" ");
 
     let x264_enc = [
         "x264enc",
@@ -155,7 +154,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "tune=zerolatency",
         "byte-stream=true",
         "sliced-threads=true",
-    ].join(" ");
+    ]
+    .join(" ");
 
     let pipeline_v = [
         &pipe_wire_src,
@@ -163,41 +163,38 @@ async fn main() -> Result<(), Box<dyn Error>> {
         &config.video.gst_pipeline(),
         &x264_enc,
         "video/x-h264,profile=constrained-baseline,format=yuv420p",
-    ].join(" ! ");
-
-    let pipeline_a = config.pulse.map(|x| [
-        x.gst_source(),
-        config.audio.gst_pipeline(),
-    ].join(" ! "));
-
-    let srt_sink = config.srt
-        .as_ref()
-        .map(|x| "queue ! ".to_string() + &x.gst_sink());
-
-    let file_sink = config.file
-        .as_ref()
-        .map(|x| "queue ! ".to_string() + &x.gst_sink());
-
-    let sinks = [
-        file_sink,
-        srt_sink,
     ]
+    .join(" ! ");
+
+    let pipeline_a = config
+        .pulse
+        .map(|x| [x.gst_source(), config.audio.gst_pipeline()].join(" ! "));
+
+    let srt_sink = config
+        .srt
+        .as_ref()
+        .map(|x| "queue ! ".to_string() + &x.gst_sink());
+
+    let file_sink = config
+        .file
+        .as_ref()
+        .map(|x| "queue ! ".to_string() + &x.gst_sink());
+
+    let sinks = [file_sink, srt_sink]
         .into_iter()
         .flatten()
         .collect::<Vec<_>>()
         .join(" tee. ! ");
 
-    let pipeline_out = [
-        "mpegtsmux name=mux",
-        "tee name=tee",
-        &sinks,
-    ].join(" ! ");
+    let pipeline_out = ["mpegtsmux name=mux", "tee name=tee", &sinks].join(" ! ");
 
     let pipeline = [Some(pipeline_v), pipeline_a]
         .into_iter()
         .flatten()
         .collect::<Vec<_>>()
-        .join(" ! mux. ") + " ! " + &pipeline_out;
+        .join(" ! mux. ")
+        + " ! "
+        + &pipeline_out;
 
     println!("{}", pipeline);
 
