@@ -126,11 +126,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .ok_or("fuck")?;
 
     let opt = HashMap::new();
-    let _fd = cast.open_pipe_wire_remote(&session, &opt).await?;
+    let fd = cast.open_pipe_wire_remote(&session, &opt).await?;
 
     let pipe_wire_src = [
         "pipewiresrc",
         &format!("path={}", node_id),
+        &format!("fd={}", fd),
         "always-copy=true",
         "do-timestamp=true",
         "keepalive-time=1000",
