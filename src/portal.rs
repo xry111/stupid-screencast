@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use zbus::zvariant::{Fd, OwnedValue, Value};
+use zbus::zvariant::{OwnedFd, OwnedValue, Value};
 use zbus::{dbus_proxy, Result};
 
 pub type Options<'a> = HashMap<&'static str, Value<'a>>;
@@ -31,5 +31,5 @@ pub trait DesktopScreenCast {
     fn select_sources(&self, s: &SessionProxy<'_>, options: &Options<'_>);
     #[dbus_proxy(object = "Request")]
     fn start(&self, s: &SessionProxy<'_>, parent_window: &str, options: &Options<'_>);
-    fn open_pipe_wire_remote(&self, s: &SessionProxy<'_>, options: &Options<'_>) -> Result<Fd>;
+    fn open_pipe_wire_remote(&self, s: &SessionProxy<'_>, options: &Options<'_>) -> Result<OwnedFd>;
 }
