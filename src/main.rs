@@ -85,7 +85,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await?;
 
     let opt = HashMap::from([
-        // ("cursor_mode", Value::from(2u32)),
+        ("cursor_mode", Value::from(config.video.cursor() as u32 + 1)),
         ("handle_token", Value::from("stupid_screencast")),
     ]);
     let request = cast.select_sources(&session, &opt).await?;

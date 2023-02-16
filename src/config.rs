@@ -57,6 +57,8 @@ pub struct Video {
     width: usize,
     height: usize,
     framerate: usize,
+    #[serde(default)]
+    cursor: bool,
 }
 
 impl Video {
@@ -71,6 +73,10 @@ impl Video {
             &format!("video/x-raw,width={width},height={height}"),
         ]
         .join(" ! ")
+    }
+
+    pub fn cursor(&self) -> bool {
+        self.cursor
     }
 }
 
