@@ -55,12 +55,13 @@ impl Pulse {
 #[derive(Deserialize)]
 pub enum Encoder {
     OpenH264,
+    VaH264,
     X264,
 }
 
 impl Default for Encoder {
     fn default() -> Self {
-        Self::OpenH264
+        Self::X264
     }
 }
 
@@ -102,6 +103,9 @@ impl Encoder {
                 .join(" ")
                     + " ! "
                     + H264_FORMAT
+            }
+            Self::VaH264 => {
+                ["vah264enc", "target-usage=7", "bitrate=2000"].join(" ") + " ! " + H264_FORMAT
             }
         }
     }
