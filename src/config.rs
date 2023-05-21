@@ -53,24 +53,101 @@ impl Pulse {
 }
 
 #[derive(Deserialize)]
+pub enum Encoder {
+    OpenH264,
+    X264,
+}
+
+impl Default for Encoder {
+    fn default() -> Self {
+        Self::OpenH264
+    }
+}
+
+impl Encoder {
+    fn gst_pipeline(&self, framerate: usize) -> String {
+        let gop_size = framerate / 2;
+
+        const H264_FORMAT: &str = concat!(
+            "video/x-h264",
+            ",",
+            "profile=constrained-baseline",
+            ",",
+            "format=yuv420p",
+        );
+
+        match self {
+            Self::OpenH264 => {
+                [
+                    "openh264enc",
+                    "usage-type=screen",
+                    "complexity=low",
+                    "slice-mode=auto",
+                    &format!("multi-thread={}", num_cpus::get()),
+                    &format!("gop-size={gop_size}"),
+                ]
+                .join(" ")
+                    + " ! "
+                    + H264_FORMAT
+            }
+            Self::X264 => {
+                [
+                    "x264enc",
+                    "speed-preset=superfast",
+                    "tune=zerolatency",
+                    "byte-stream=true",
+                    "sliced-threads=true",
+                    &format!("key-int-max={gop_size}"),
+                ]
+                .join(" ")
+                    + " ! "
+                    + H264_FORMAT
+            }
+        }
+    }
+}
+
+#[derive(Deserialize)]
 pub struct Video {
     width: usize,
     height: usize,
     framerate: usize,
     #[serde(default)]
     cursor: bool,
+    #[serde(default)]
+    encoder: Encoder,
 }
 
 impl Video {
     pub fn gst_pipeline(&self) -> String {
-        let framerate = self.framerate;
-        let width = self.width;
-        let height = self.height;
+        let Self {
+            framerate,
+            width,
+            height,
+            encoder,
+            ..
+        } = &self;
+
+        const VIDEO_CONVERT: &str = concat!(
+            "videoconvert",
+            " ",
+            "chroma-mode=GST_VIDEO_CHROMA_MODE_NONE",
+            " ",
+            "dither=GST_VIDEO_DITHER_NONE",
+            " ",
+            "matrix-mode=GST_VIDEO_MATRIX_MODE_OUTPUT_ONLY",
+            " ",
+            "n-threads=1",
+        );
+
         [
-            &format!("videorate max-rate={framerate}"),
+            &format!("video/x-raw,max-framerate={framerate}/1"),
+            VIDEO_CONVERT,
+            "videorate",
             &format!("video/x-raw,framerate={framerate}/1"),
             "videoscale",
             &format!("video/x-raw,width={width},height={height}"),
+            &encoder.gst_pipeline(*framerate),
         ]
         .join(" ! ")
     }

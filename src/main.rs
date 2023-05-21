@@ -139,32 +139,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     ]
     .join(" ");
 
-    let video_convert = [
-        "videoconvert",
-        "chroma-mode=GST_VIDEO_CHROMA_MODE_NONE",
-        "dither=GST_VIDEO_DITHER_NONE",
-        "matrix-mode=GST_VIDEO_MATRIX_MODE_OUTPUT_ONLY",
-        "n-threads=1",
-    ]
-    .join(" ");
-
-    let x264_enc = [
-        "x264enc",
-        "speed-preset=superfast",
-        "tune=zerolatency",
-        "byte-stream=true",
-        "sliced-threads=true",
-    ]
-    .join(" ");
-
-    let pipeline_v = [
-        &pipe_wire_src,
-        &video_convert,
-        &config.video.gst_pipeline(),
-        &x264_enc,
-        "video/x-h264,profile=constrained-baseline,format=yuv420p",
-    ]
-    .join(" ! ");
+    let pipeline_v = pipe_wire_src + " ! " + &config.video.gst_pipeline();
 
     let pipeline_a = config
         .pulse
