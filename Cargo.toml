@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 zbus = "3.0.0"
 async-std = { version = "1.10.0", features = ["attributes"] }
-gstreamer = "0.18.8"
-toml = "0.5"
+gstreamer = "0.20.5"
+toml = "0.7.4"
 thiserror = "1.0"
 serde = "1.0.145"
