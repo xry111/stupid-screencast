@@ -66,7 +66,7 @@ impl Default for Encoder {
 }
 
 impl Encoder {
-    fn gst_pipeline(&self, framerate: usize) -> String {
+    fn gst_pipeline(&self, framerate: usize, kbit_rate: usize) -> String {
         let gop_size = framerate / 2;
 
         const H264_FORMAT: &str = concat!(
@@ -84,6 +84,8 @@ impl Encoder {
                     "usage-type=screen",
                     "complexity=low",
                     "slice-mode=auto",
+                    "rate-control=bitrate",
+                    &format!("bitrate={}", kbit_rate * 1024),
                     &format!("multi-thread={}", num_cpus::get()),
                     &format!("gop-size={gop_size}"),
                 ]
@@ -98,6 +100,8 @@ impl Encoder {
                     "tune=zerolatency",
                     "byte-stream=true",
                     "sliced-threads=true",
+                    // yes, it's named "bitrate" but in kbps
+                    &format!("bitrate={}", kbit_rate),
                     &format!("key-int-max={gop_size}"),
                 ]
                 .join(" ")
@@ -105,7 +109,16 @@ impl Encoder {
                     + H264_FORMAT
             }
             Self::VaH264 => {
-                ["vah264enc", "target-usage=7", "bitrate=2000"].join(" ") + " ! " + H264_FORMAT
+                [
+                    "vah264enc",
+                    "target-usage=7",
+                    // yes, it's named "bitrate" but in kbps
+                    &format!("bitrate={}", kbit_rate),
+                    &format!("key-int-max={gop_size}"),
+                ]
+                .join(" ")
+                    + " ! "
+                    + H264_FORMAT
             }
         }
     }
@@ -120,6 +133,12 @@ pub struct Video {
     cursor: bool,
     #[serde(default)]
     encoder: Encoder,
+    #[serde(default = "default_kbit_rate")]
+    kbit_rate: usize,
+}
+
+const fn default_kbit_rate() -> usize {
+    2000
 }
 
 impl Video {
@@ -129,8 +148,9 @@ impl Video {
             width,
             height,
             encoder,
+            kbit_rate,
             ..
-        } = &self;
+        } = self;
 
         const VIDEO_CONVERT: &str = concat!(
             "videoconvert",
@@ -151,7 +171,7 @@ impl Video {
             &format!("video/x-raw,framerate={framerate}/1"),
             "videoscale",
             &format!("video/x-raw,width={width},height={height}"),
-            &encoder.gst_pipeline(*framerate),
+            &encoder.gst_pipeline(*framerate, *kbit_rate),
         ]
         .join(" ! ")
     }

@@ -24,8 +24,11 @@ framerate = 60
 # stream
 #cursor = false
 
-# select "OpenH264" (default) and "X264" here
-#encoder = "OpenH264"
+# select "X264" (default), "OpenH264", or "VaH264" here
+#encoder = "X264"
+
+# this is the default
+#kbit_rate = 2000
 
 [audio]
 #sample_rate = 48000   # Hz, this is the default
