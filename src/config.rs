@@ -164,12 +164,17 @@ impl Video {
             "n-threads=1",
         );
 
+        let scale = match encoder {
+            Encoder::VaH264 => "vapostproc disable-passthrough=true",
+            _ => "videoscale"
+        };
+
         [
             &format!("video/x-raw,max-framerate={framerate}/1"),
-            VIDEO_CONVERT,
             "videorate",
             &format!("video/x-raw,framerate={framerate}/1"),
-            "videoscale",
+            VIDEO_CONVERT,
+            scale,
             &format!("video/x-raw,width={width},height={height}"),
             &encoder.gst_pipeline(*framerate, *kbit_rate),
         ]
