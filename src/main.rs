@@ -132,7 +132,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         "pipewiresrc",
         &format!("path={}", node_id),
         &format!("fd={}", fd),
-        "always-copy=true",
         "do-timestamp=true",
         "keepalive-time=1000",
         "resend-last=true",
