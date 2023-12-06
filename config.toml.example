@@ -4,6 +4,8 @@ uri = "srt://live-push.bilivideo.com:1937"
 # Bilibili Web interface provides this as "?streamname=...".
 # "?streamname" is FFmpeg specific and we don't support it.
 streamid = "#!::h=live-push.bilivideo.com,r=live-bvc/?streamname=live_xxxxxxxx_yyyyyyyy,key=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz,schedule=srtts,pflag=1"
+# Latency to the server in milliseconds, 2000 is the default
+#latency = 2000
 
 # uncomment the section to record the stream into a mpegts file
 #[file]

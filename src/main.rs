@@ -144,10 +144,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .pulse
         .map(|x| [x.gst_source(), config.audio.gst_pipeline()].join(" ! "));
 
-    let srt_sink = config
-        .srt
-        .as_ref()
-        .map(|x| x.gst_sink());
+    let srt_sink = config.srt.as_ref().map(|x| x.gst_sink());
 
     let file_sink = config
         .file

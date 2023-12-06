@@ -16,7 +16,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub struct Srt {
     uri: String,
     streamid: String,
+    #[serde(default = "default_latency")]
     latency: u32,
+}
+
+fn default_latency() -> u32 {
+    2000
 }
 
 impl Srt {
