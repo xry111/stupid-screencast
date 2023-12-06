@@ -25,6 +25,8 @@ framerate = 60
 #cursor = false
 
 # select "X264" (default), "OpenH264", or "VaH264" here
+# WARNING: Only X264 is working "perfectly".  Both "OpenH264" and "VaH264"
+# are causing unexplainable failures streaming maximized windows.
 #encoder = "X264"
 
 # this is the default
