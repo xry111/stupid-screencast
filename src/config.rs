@@ -16,11 +16,15 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub struct Srt {
     uri: String,
     streamid: String,
+    latency: u32,
 }
 
 impl Srt {
     pub fn gst_sink(&self) -> String {
-        format!("srtsink uri={} streamid={} latency=200000", self.uri, self.streamid)
+        format!(
+            "srtsink uri={} streamid={} latency={}",
+            self.uri, self.streamid, self.latency
+        )
     }
 }
 
@@ -155,7 +159,7 @@ impl Video {
 
         let scale = match encoder {
             Encoder::VaH264 => "vapostproc disable-passthrough=true",
-            _ => "videoscale"
+            _ => "videoscale",
         };
 
         [

@@ -147,12 +147,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let srt_sink = config
         .srt
         .as_ref()
-        .map(|x| "queue ! ".to_string() + &x.gst_sink());
+        .map(|x| x.gst_sink());
 
     let file_sink = config
         .file
         .as_ref()
-        .map(|x| "queue ! ".to_string() + &x.gst_sink());
+        .map(|x| "queue ! ".to_owned() + &x.gst_sink());
 
     let sinks = [file_sink, srt_sink]
         .into_iter()
