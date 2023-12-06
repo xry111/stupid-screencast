@@ -20,7 +20,7 @@ pub struct Srt {
 
 impl Srt {
     pub fn gst_sink(&self) -> String {
-        format!("srtsink uri={} streamid={}", self.uri, self.streamid)
+        format!("srtsink uri={} streamid={} latency=200000", self.uri, self.streamid)
     }
 }
 
