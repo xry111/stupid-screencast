@@ -69,58 +69,47 @@ impl Encoder {
     fn gst_pipeline(&self, framerate: usize, kbit_rate: usize) -> String {
         let gop_size = framerate / 2;
 
-        const H264_FORMAT: &str = concat!(
+        let h264_format = [
             "video/x-h264",
-            ",",
             "profile=constrained-baseline",
-            ",",
             "format=yuv420p",
-        );
+            &format!("framerate={framerate}/1"),
+        ]
+        .join(",");
 
-        match self {
-            Self::OpenH264 => {
-                [
-                    "openh264enc",
-                    "usage-type=screen",
-                    "complexity=low",
-                    "slice-mode=auto",
-                    "rate-control=bitrate",
-                    &format!("bitrate={}", kbit_rate * 1024),
-                    &format!("multi-thread={}", num_cpus::get()),
-                    &format!("gop-size={gop_size}"),
-                ]
-                .join(" ")
-                    + " ! "
-                    + H264_FORMAT
-            }
-            Self::X264 => {
-                [
-                    "x264enc",
-                    "speed-preset=superfast",
-                    "tune=zerolatency",
-                    "byte-stream=true",
-                    "sliced-threads=true",
-                    // yes, it's named "bitrate" but in kbps
-                    &format!("bitrate={}", kbit_rate),
-                    &format!("key-int-max={gop_size}"),
-                ]
-                .join(" ")
-                    + " ! "
-                    + H264_FORMAT
-            }
-            Self::VaH264 => {
-                [
-                    "vah264enc",
-                    "target-usage=7",
-                    // yes, it's named "bitrate" but in kbps
-                    &format!("bitrate={}", kbit_rate),
-                    &format!("key-int-max={gop_size}"),
-                ]
-                .join(" ")
-                    + " ! "
-                    + H264_FORMAT
-            }
-        }
+        (match self {
+            Self::OpenH264 => [
+                "openh264enc",
+                "usage-type=screen",
+                "complexity=low",
+                "slice-mode=auto",
+                "rate-control=bitrate",
+                &format!("bitrate={}", kbit_rate * 1024),
+                &format!("multi-thread={}", num_cpus::get()),
+                &format!("gop-size={gop_size}"),
+            ]
+            .join(" "),
+            Self::X264 => [
+                "x264enc",
+                "speed-preset=superfast",
+                "tune=zerolatency",
+                "byte-stream=true",
+                "sliced-threads=true",
+                // yes, it's named "bitrate" but in kbps
+                &format!("bitrate={}", kbit_rate),
+                &format!("key-int-max={gop_size}"),
+            ]
+            .join(" "),
+            Self::VaH264 => [
+                "vah264enc",
+                "target-usage=7",
+                // yes, it's named "bitrate" but in kbps
+                &format!("bitrate={}", kbit_rate),
+                &format!("key-int-max={gop_size}"),
+            ]
+            .join(" "),
+        }) + " ! "
+            + &h264_format
     }
 }
 
